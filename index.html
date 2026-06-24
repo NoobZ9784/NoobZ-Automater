@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline';" />
+  <title>NoobZ Automater</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="titlebar">
+    <span class="title">⌨️ NoobZ Automater</span>
+    <div class="win-controls">
+      <button id="pinBtn" class="win-btn" title="Pin on top">📌</button>
+      <button id="closeBtn" class="win-btn close" title="Close">✕</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <div class="row">
+      <div class="field">
+        <label for="charDelay">Character delay (ms)</label>
+        <input id="charDelay" type="number" min="0" value="30" />
+      </div>
+      <div class="field">
+        <label for="lineDelay">Next line delay (ms)</label>
+        <input id="lineDelay" type="number" min="0" value="100" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="playDelay">Play delay (s)</label>
+      <input id="playDelay" type="number" min="0" value="5" />
+    </div>
+
+    <div class="field grow">
+      <label for="text">Original Text</label>
+      <textarea id="text" placeholder="Type or paste the text to be typed..."></textarea>
+    </div>
+
+    <button id="playBtn" class="play">▶ Play</button>
+    <p id="status" class="status"></p>
+  </main>
+
+  <script src="renderer.js"></script>
+</body>
+</html>

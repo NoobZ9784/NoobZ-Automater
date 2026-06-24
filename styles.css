@@ -1,0 +1,147 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #1e1e2e;
+  --panel: #27293d;
+  --accent: #7c5cff;
+  --accent-hover: #6a48f0;
+  --text: #e6e6f0;
+  --muted: #9a9ab0;
+  --border: #3a3a55;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  user-select: none;
+  overflow: hidden;
+}
+
+/* Title bar (draggable) */
+.titlebar {
+  -webkit-app-region: drag;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.win-controls {
+  -webkit-app-region: no-drag;
+  display: flex;
+  gap: 6px;
+}
+
+.win-btn {
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.win-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.win-btn.close:hover { background: #e0405a; }
+.win-btn.pinned { background: var(--accent); }
+
+/* Content */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  overflow: auto;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row .field { flex: 1; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field.grow {
+  flex: 1;
+  min-height: 0;
+}
+
+label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+input, textarea {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  user-select: text;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--accent);
+}
+
+textarea {
+  flex: 1;
+  resize: none;
+  min-height: 100px;
+  line-height: 1.4;
+}
+
+.play {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s;
+}
+
+.play:hover { background: var(--accent-hover); }
+.play:active { transform: scale(0.98); }
+.play.running { background: #e0405a; }
+
+.status {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  min-height: 16px;
+}
