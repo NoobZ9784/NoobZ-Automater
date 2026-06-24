@@ -4,7 +4,12 @@ const path = require('path');
 let nut = null;
 try {
   nut = require('@nut-tree-fork/nut-js');
-  nut.keyboard.config.autoDelayMs = 0;
+  // A small non-zero delay between key events is essential: with 0, keystrokes
+  // fire faster than apps like VS Code can process, and they silently drop
+  // characters (whole lines go missing). This is the minimum spacing between
+  // key-down/up events; the per-character pacing is still controlled by the
+  // user's Character delay on top of this.
+  nut.keyboard.config.autoDelayMs = 8;
   nut.mouse.config.autoDelayMs = 0;
 } catch (err) {
   // Native module failed to load. Renderer will be told on play.
@@ -69,6 +74,32 @@ ipcMain.handle('automation:play', async (event, opts) => {
   const lineDelay = Math.max(0, Number(opts.lineDelay) || 0);
   const playDelay = Math.max(0, Number(opts.playDelay) || 0);
   const text = String(opts.text || '');
+  const smartIndent = opts.smartIndent !== false; // VS Code auto-indent fix
+
+  // After Enter, smart editors (e.g. VS Code) auto-insert indentation on the
+  // new line. We remove it so our own leading whitespace doesn't stack on top.
+  //
+  // We are always typing at the END of the document, so a forward Delete can
+  // never destroy text the user wrote — there is nothing to the right of the
+  // cursor. So: select from the cursor back to column 0, then Delete.
+  //   - Shift+Home is sent twice to defeat VS Code "smart home" (the first
+  //     press can stop at the first non-whitespace column; the second always
+  //     reaches column 0, selecting the whole auto-indent).
+  //   - If the line has no auto-indent, the selection is empty and Delete is a
+  //     no-op (nothing exists to the right at end-of-document).
+  // Home/Shift+Home never cross a line boundary, so this can only ever affect
+  // the freshly-created line, never the line above it.
+  const clearAutoIndent = async () => {
+    if (!smartIndent) return;
+    try {
+      await keyboard.type(Key.LeftShift, Key.Home);
+      await sleep(12);
+      await keyboard.type(Key.LeftShift, Key.Home);
+      await sleep(12);
+      await keyboard.type(Key.Delete);
+      await sleep(12);
+    } catch (e) {}
+  };
 
   cancelRequested = false;
 
@@ -91,7 +122,9 @@ ipcMain.handle('automation:play', async (event, opts) => {
     return { ok: false, error: 'Mouse click failed: ' + e.message };
   }
 
-  await sleep(120);
+  // Give the target app time to receive focus before typing. Too short a
+  // delay here causes the first line to be lost (the editor isn't ready yet).
+  await sleep(350);
 
   // Type character by character, preserving everything as-is.
   for (let i = 0; i < text.length; i++) {
@@ -103,11 +136,13 @@ ipcMain.handle('automation:play', async (event, opts) => {
     if (ch === '\r') {
       if (text[i + 1] === '\n') i++; // swallow paired LF
       await keyboard.type(Key.Enter);
+      await clearAutoIndent();
       await sleep(lineDelay);
       continue;
     }
     if (ch === '\n') {
       await keyboard.type(Key.Enter);
+      await clearAutoIndent();
       await sleep(lineDelay);
       continue;
     }

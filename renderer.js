@@ -47,6 +47,7 @@ playBtn.addEventListener('click', async () => {
     charDelay: $('charDelay').value,
     lineDelay: $('lineDelay').value,
     playDelay: $('playDelay').value,
+    smartIndent: $('smartIndent').checked,
     text
   };
 
