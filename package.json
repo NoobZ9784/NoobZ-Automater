@@ -21,7 +21,7 @@
   "build": {
     "appId": "com.noobz.automater",
     "productName": "NoobZ Automater",
-    "icon": "build/icon.ico",
+    "icon": "icon.png",
     "files": [
       "main.js",
       "preload.js",
@@ -40,8 +40,7 @@
     "win": {
       "target": [
         "msi"
-      ],
-      "icon": "build/icon.ico"
+      ]
     },
     "msi": {
       "oneClick": false,
@@ -56,7 +55,9 @@
         "zip"
       ],
       "category": "public.app-category.utilities",
-      "icon": "build/icon.icns"
+      "extendInfo": {
+        "CFBundleDisplayName": "NoobZ Automater"
+      }
     },
     "dmg": {
       "title": "NoobZ Automater"
@@ -67,8 +68,7 @@
         "deb"
       ],
       "category": "Utility",
-      "maintainer": "NoobZ",
-      "icon": "build/icon.png"
+      "maintainer": "NoobZ"
     }
   }
 }

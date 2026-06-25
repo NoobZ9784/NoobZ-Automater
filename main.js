@@ -19,6 +19,10 @@ try {
 let mainWindow = null;
 let cancelRequested = false;
 
+// Set the app name so macOS shows "NoobZ Automater" in the menu bar and dock
+// instead of the default "Electron".
+app.setName('NoobZ Automater');
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 380,
