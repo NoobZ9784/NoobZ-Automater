@@ -92,9 +92,19 @@ ipcMain.handle('automation:play', async (event, opts) => {
   const clearAutoIndent = async () => {
     if (!smartIndent) return;
     try {
-      await keyboard.type(Key.LeftShift, Key.Home);
+      // Hold Shift while pressing Home to actually select the auto-indent.
+      // keyboard.type() presses & releases each key independently, so
+      // type(Shift, Home) does NOT produce a Shift+Home combo — it just
+      // presses Shift alone, then Home alone, selecting nothing.  Delete
+      // then fires on an empty cursor at column 0 and joins the line with
+      // the one above, which is why lines were being removed.
+      await keyboard.pressKey(Key.LeftShift);
+      await keyboard.type(Key.Home);
       await sleep(12);
-      await keyboard.type(Key.LeftShift, Key.Home);
+      // Second Home to defeat VS Code "smart home" (first press may stop
+      // at first non-whitespace column; second always reaches column 0).
+      await keyboard.type(Key.Home);
+      await keyboard.releaseKey(Key.LeftShift);
       await sleep(12);
       await keyboard.type(Key.Delete);
       await sleep(12);
@@ -125,6 +135,12 @@ ipcMain.handle('automation:play', async (event, opts) => {
   // Give the target app time to receive focus before typing. Too short a
   // delay here causes the first line to be lost (the editor isn't ready yet).
   await sleep(350);
+
+  // Characters that VS Code (and most editors) auto-close: when you type the
+  // opening character, the editor inserts the closing one after the cursor.
+  // We press Delete immediately to remove the ghost so it doesn't duplicate
+  // when we type the real closing character later.
+  const autoClosePairs = new Set(['(', '{', '[', '"', "'", '`']);
 
   // Type character by character, preserving everything as-is.
   for (let i = 0; i < text.length; i++) {
@@ -157,6 +173,13 @@ ipcMain.handle('automation:play', async (event, opts) => {
     } catch (e) {
       // Skip characters that can't be typed on the current layout.
     }
+
+    // Remove the auto-closed character that the editor inserted.
+    if (smartIndent && autoClosePairs.has(ch)) {
+      await sleep(8);
+      await keyboard.type(Key.Delete);
+    }
+
     await sleep(charDelay);
   }
 
